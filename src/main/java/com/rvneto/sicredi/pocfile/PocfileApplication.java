@@ -19,7 +19,7 @@ public class PocfileApplication {
     @PostConstruct
     void t() {
         // paymentService.loadInitialData();
-        paymentService.builderFile();
+        // paymentService.builderFile();
     }
 
 }
