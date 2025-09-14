@@ -2,15 +2,20 @@ package com.rvneto.sicredi.pocfile.domain.model;
 
 import com.rvneto.sicredi.pocfile.domain.enums.Status;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
 @Builder
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "payments", uniqueConstraints = {
         @UniqueConstraint(name = "uk_payments_transaction_id", columnNames = "transaction_id")
 })
@@ -34,10 +39,12 @@ public class Payment {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "insert_timestamp", nullable = false, updatable = false, insertable = false,
             columnDefinition = "DATE DEFAULT SYSDATE")
-    private Date insertTimestamp;
+    private LocalDateTime insertTimestamp;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "update_timestamp")
-    private Date updateTimestamp;
+    private LocalDateTime updateTimestamp;
 
+    @Column(name = "file_send", length = 50)
+    private String fileSend;
 }
