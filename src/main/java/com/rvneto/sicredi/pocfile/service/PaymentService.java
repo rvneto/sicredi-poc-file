@@ -9,7 +9,6 @@ import com.rvneto.sicredi.pocfile.utils.NumberUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,20 +23,25 @@ public class PaymentService {
 
     public void builderFile() {
         try {
-            // 1 buscar dados
+            // Buscar dados
             List<Payment> payments = paymentRepository.findTop999ByStatus(Status.INCLUDED);
 
-            // 2 criar arquivo
+            if (payments.isEmpty()) return;
+
+            // Atualizar status para PROCESSING
+            updateStatus(payments, Status.PROCESSING);
+
+            // Criar arquivo
             String file = fileService.createFile(payments);
             String fileName = "payments_" + String.format("%05d", arquivoRepository.getNextArquivoSequence());
 
-            // 3 mover arquivo simulando o s3
+            // Mover arquivo simulando o s3
             fileService.moveFile(file, fileName);
 
-            // 4 postar no kafka
+            // Postar no kafka
             kafkaProducer.sendMessage(fileName);
 
-            // 5 atualizar status
+            // Atualizar status para FINALIZED
             updateStatus(payments, Status.FINALIZED);
 
         } catch (Exception e) {
@@ -46,7 +50,7 @@ public class PaymentService {
     }
 
     private void updateStatus(List<Payment> payments, Status status) {
-        payments.forEach(payment -> payment.setStatus(Status.FINALIZED));
+        payments.forEach(payment -> payment.setStatus(status));
         paymentRepository.saveAll(payments);
     }
 
